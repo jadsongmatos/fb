@@ -46,8 +46,7 @@ fn main(){
             // Se a renderização foi mais rápida do que a duração de um quadro, pausa o loop
             thread::sleep(frame_duration - elapsed);
             
-        } else {
-            println!("frame_duration: {:?}",elapsed)
         }
+        println!("frame_duration: {:?}",elapsed)
     }
 }

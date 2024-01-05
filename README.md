@@ -1,4 +1,4 @@
 
 ```bash
-ffmpeg -f fbdev -i /dev/fb1 -f sdl "Framebuffer”
+ffmpeg -f fbdev -framerate 30 -i /dev/fb0 -f sdl "Framebuffer"
 ```

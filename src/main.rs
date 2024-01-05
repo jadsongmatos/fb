@@ -1,4 +1,5 @@
 use linuxfb;
+use std::{thread, time};
 
 fn main(){
     let devices = linuxfb::Framebuffer::list().unwrap();
@@ -17,27 +18,36 @@ fn main(){
     // Map the framebuffer into memory, so we can write to it:
     let mut data = fb.map().unwrap();
 
-    // Define your color in RGB:
-    let red = 0xBF; // Adjust the intensity of red (0 to 255)
-    let green = 0xAF; // Adjust the intensity of green (0 to 255)
-    let blue = 0xCF; // Adjust the intensity of blue (0 to 255)
+    //1049088 1366x768
+    //4196352 1366x768x4
+    println!("data: {:?}",data.len());
 
-    // Assuming a 32-bit RGBA format (8 bits for each of red, green, blue, alpha)
-    let color = (red as u32) << 16 | (green as u32) << 8 | (blue as u32);
+
+    let frame_duration = time::Duration::from_millis(33); // Duração de um quadro para 30 FPS
+
+    // Define your color in RGB:
+    let red: u8 = 0xBF; // Adjust the intensity of red (0 to 255)
+    let green: u8 = 0xAF; // Adjust the intensity of green (0 to 255)
+    let blue: u8 = 0xCF; // Adjust the intensity of blue (0 to 255)
 
     // Modify the loop to set this color:
     loop {
-        for i in (0..data.len()).step_by(4) {
-            let pixel = &mut data[i..i + 4];
+        let start = time::Instant::now(); // Marca o início do quadro
 
-            pixel[0] = (color & 0xFF) as u8; // Blue
-            pixel[1] = ((color >> 8) & 0xFF) as u8; // Green
-            pixel[2] = ((color >> 16) & 0xFF) as u8; // Red
-            //pixel[3] = 0xAF; // Alpha (0xFF for fully opaque)
+        for pixel in data.chunks_exact_mut(4) {
+            pixel[0] = blue;
+            pixel[1] = green;
+            pixel[2] = red;
         }
+      
+        let elapsed = start.elapsed(); // Calcula o tempo gasto na renderização
 
-        for i in 0..data.len() {
-            data[i] = 0xFF;
+        if elapsed < frame_duration {
+            // Se a renderização foi mais rápida do que a duração de um quadro, pausa o loop
+            thread::sleep(frame_duration - elapsed);
+            
+        } else {
+            println!("frame_duration: {:?}",elapsed)
         }
     }
 }
